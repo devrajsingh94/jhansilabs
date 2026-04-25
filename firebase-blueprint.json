@@ -1,0 +1,84 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "phoneNumber": { "type": "string" },
+        "address": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "user"] }
+      },
+      "required": ["uid", "email", "displayName"]
+    },
+    "Booking": {
+      "title": "Booking",
+      "description": "Lab test booking information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "tests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "category": { "type": "string" },
+              "price": { "type": "number" },
+              "description": { "type": "string" }
+            }
+          }
+        },
+        "type": { "type": "string", "enum": ["home", "lab"] },
+        "date": { "type": "string" },
+        "time": { "type": "string" },
+        "address": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "completed", "cancelled"] },
+        "createdAt": { "type": "number" },
+        "totalAmount": { "type": "number" },
+        "patientName": { "type": "string" },
+        "patientPhone": { "type": "string" },
+        "patientAge": { "type": "number" },
+        "location": { "type": "string" },
+        "doctorReference": { "type": "string" },
+        "referralCode": { "type": "string" },
+        "prescriptionUrl": { "type": "string" }
+      },
+      "required": ["userId", "tests", "type", "date", "time", "status", "createdAt", "totalAmount", "patientName", "patientPhone", "patientAge", "location"]
+    },
+    "PatientTest": {
+      "title": "PatientTest",
+      "description": "Individual patient test results and reports",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "patientId": { "type": "string" },
+        "testName": { "type": "string" },
+        "date": { "type": "string" },
+        "status": { "type": "string", "enum": ["Pending", "Completed"] },
+        "reportUrl": { "type": "string" },
+        "progress": { "type": "string", "enum": ["Sample Collected", "In Lab", "Result Pending"] }
+      },
+      "required": ["patientId", "testName", "date", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile documents"
+    },
+    "/bookings/{bookingId}": {
+      "schema": "Booking",
+      "description": "Booking documents"
+    },
+    "/patient_tests/{testId}": {
+      "schema": "PatientTest",
+      "description": "Patient test result documents"
+    }
+  }
+}

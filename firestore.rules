@@ -1,0 +1,155 @@
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: users
+// Document ID: {userId}
+// Fields:
+//   - uid: string (required) - User's unique ID
+//   - email: string (required, email) - User's email address
+//   - displayName: string (required) - User's name
+//   - photoURL: string (optional) - User's photo URL
+//   - lastLogin: number (optional) - Last login timestamp
+//   - phoneNumber: string (optional) - User's phone
+//   - address: string (optional) - User's address
+//   - role: string (optional, enum: ['admin', 'user']) - User's role
+//
+// Collection: bookings
+// Document ID: {bookingId}
+// Fields:
+//   - id: string (required) - Booking ID
+//   - userId: string (required) - ID of the user who booked
+//   - tests: list (required) - List of lab tests
+//   - type: string (required, enum: ['home', 'lab']) - Type of service
+//   - date: string (required) - Booking date
+//   - time: string (required) - Booking time
+//   - location: string (required) - Home collection address or lab location
+//   - patientName: string (required) - Name of the patient
+//   - patientPhone: string (required) - Phone number of the patient
+//   - patientAge: number (required) - Age of the patient
+//   - doctorReference: string (optional) - Doctor's name
+//   - referralCode: string (optional) - Discount code
+//   - status: string (required, enum: ['pending', 'confirmed', 'completed', 'cancelled']) - Booking status
+//   - createdAt: number (required) - Creation timestamp
+//   - totalAmount: number (required) - Total price
+//
+// Collection: patient_tests
+// Document ID: {testId}
+// Fields:
+//   - id: string (required) - Test ID
+//   - patientId: string (required) - ID of the patient
+//   - testName: string (required) - Name of the test
+//   - date: string (required) - Test date
+//   - status: string (required, enum: ['Pending', 'Completed']) - Test status
+//   - reportUrl: string (optional) - URL to the PDF report
+//   - progress: string (optional, enum: ['Sample Collected', 'In Lab', 'Result Pending']) - Progress status
+//
+// ===============================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        ((request.auth.token.email == "drstech94@gmail.com" && request.auth.token.email_verified == true) || 
+         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'));
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidUser(data) {
+      return hasRequiredFields(['uid', 'email', 'displayName']) &&
+             hasOnlyAllowedFields(['uid', 'email', 'displayName', 'photoURL', 'lastLogin', 'phone', 'age', 'address', 'role', 'createdAt']) &&
+             data.uid == request.auth.uid &&
+             (data.email == "" || isValidEmail(data.email)) &&
+             data.displayName is string && data.displayName.size() > 0 && data.displayName.size() < 100 &&
+             (!('photoURL' in data) || (data.photoURL is string && data.photoURL.size() < 1000)) &&
+             (!('lastLogin' in data) || data.lastLogin is number) &&
+             (!('createdAt' in data) || data.createdAt is number) &&
+             (!('phone' in data) || (data.phone is string && data.phone.size() < 20)) &&
+             (!('age' in data) || (data.age is string || data.age is number)) &&
+             (!('address' in data) || (data.address is string && data.address.size() < 500)) &&
+             (!('role' in data) || (data.role in ['admin', 'user'] && (data.role == 'user' || isAdmin())));
+    }
+
+    function isValidBooking(data) {
+      return hasRequiredFields(['userId', 'tests', 'type', 'date', 'time', 'status', 'createdAt', 'totalAmount', 'patientName', 'patientPhone', 'patientAge', 'location']) &&
+             hasOnlyAllowedFields(['id', 'userId', 'tests', 'type', 'date', 'time', 'location', 'status', 'createdAt', 'totalAmount', 'patientName', 'patientPhone', 'patientAge', 'doctorReference', 'referralCode', 'reports', 'reportUrl', 'collectionTime', 'prescriptionUrl']) &&
+             data.userId == request.auth.uid &&
+             data.tests is list && data.tests.size() > 0 &&
+             data.type in ['home', 'lab'] &&
+             data.status in ['pending', 'confirmed', 'completed', 'cancelled'] &&
+             data.totalAmount is number && data.totalAmount >= 0 &&
+             data.patientName is string && data.patientName.size() > 0 &&
+             data.patientPhone is string && data.patientPhone.size() > 0 &&
+             data.patientAge is number && data.patientAge > 0 &&
+             data.location is string && data.location.size() > 0;
+    }
+
+    function isValidPatientTest(data) {
+      return hasRequiredFields(['patientId', 'testName', 'date', 'status']) &&
+             hasOnlyAllowedFields(['id', 'patientId', 'testName', 'date', 'status', 'reportUrl', 'progress', 'createdAt']) &&
+             (isAdmin() || data.patientId == request.auth.uid) &&
+             data.testName is string && data.testName.size() > 0 &&
+             data.status in ['Pending', 'Completed'] &&
+             (!('reportUrl' in data) || (data.reportUrl is string && data.reportUrl.size() < 2000)) &&
+             (!('progress' in data) || (data.progress in ['Sample Collected', 'In Lab', 'Result Pending'])) &&
+             (!('createdAt' in data) || data.createdAt is number);
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /test/connection {
+      allow read: if true;
+    }
+
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (isAdmin() || isOwner(userId));
+      allow create, update: if isOwner(userId) && isValidUser(request.resource.data);
+    }
+
+    match /bookings/{bookingId} {
+      allow read: if isAuthenticated() && (isAdmin() || resource.data.userId == request.auth.uid);
+      allow create: if isAuthenticated() && isValidBooking(request.resource.data);
+      allow update: if isAuthenticated() && (isAdmin() || (isDocOwner() && isValidBooking(request.resource.data) && 
+                      request.resource.data.userId == resource.data.userId));
+      allow delete: if isAdmin();
+    }
+
+    match /patient_tests/{testId} {
+      allow read: if isAuthenticated() && (isAdmin() || resource.data.patientId == request.auth.uid);
+      allow create, update: if isAdmin() && isValidPatientTest(request.resource.data);
+      allow delete: if isAdmin();
+    }
+  }
+}
