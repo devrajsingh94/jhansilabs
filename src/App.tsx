@@ -484,6 +484,10 @@ export default function App() {
       const matchesCategory = selectedCategory === 'All' || test.category === selectedCategory;
       const matchesPrice = test.price >= priceRange.min && test.price <= priceRange.max;
       return matchesSearch && matchesCategory && matchesPrice;
+    }).sort((a, b) => {
+      if (a.popular && !b.popular) return -1;
+      if (!a.popular && b.popular) return 1;
+      return 0;
     });
   }, [searchQuery, selectedCategory, priceRange]);
 
@@ -1170,16 +1174,28 @@ export default function App() {
                   }`}>
                     <Stethoscope size={24} />
                   </div>
-                  <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg uppercase tracking-wider">
-                    {test.category}
-                  </span>
+                  <div className="flex flex-col items-end gap-2">
+                    {test.popular && (
+                      <span className="text-[10px] font-black text-white bg-orange-600 px-2 py-1 rounded-full uppercase tracking-tighter animate-pulse shadow-sm shadow-orange-200">
+                        Popular
+                      </span>
+                    )}
+                    <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg uppercase tracking-wider">
+                      {test.category}
+                    </span>
+                  </div>
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 mb-2">{test.name}</h3>
                 <p className="text-sm text-slate-500 mb-6 line-clamp-2">{test.description}</p>
                 <div className="flex items-center justify-between mt-auto">
                   <div>
                     <span className="text-xs text-slate-400 font-medium block">Price</span>
-                    <span className="text-xl font-bold text-slate-900">₹{test.price}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl font-bold text-slate-900">₹{test.price}</span>
+                      {test.originalPrice && (
+                        <span className="text-xs text-slate-400 line-through">₹{test.originalPrice}</span>
+                      )}
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <button 

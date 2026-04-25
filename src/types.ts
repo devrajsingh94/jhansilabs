@@ -6,6 +6,8 @@ export interface LabTest {
   name: string;
   category: string;
   price: number;
+  originalPrice?: number;
+  popular?: boolean;
   description: string;
   preparation?: string;
   duration?: string;
