@@ -141,7 +141,7 @@ export default function App() {
       
       if (currentUser) {
         // Set initial admin status based on email AND verification
-        const isDefaultAdmin = currentUser.email === 'drstech94@gmail.com' && currentUser.emailVerified;
+        const isDefaultAdmin = (currentUser.email === 'drstech94@gmail.com' || currentUser.email === 'jhansilabs@gmail.com') && currentUser.emailVerified;
         setIsAdmin(isDefaultAdmin);
 
         // Sync user profile to Firestore
@@ -188,7 +188,7 @@ export default function App() {
       if (doc.exists()) {
         const userData = doc.data();
         // Check both custom role and hardcoded email verification
-        setIsAdmin(userData.role === 'admin' || (user.email === 'drstech94@gmail.com' && user.emailVerified));
+        setIsAdmin(userData.role === 'admin' || ((user.email === 'drstech94@gmail.com' || user.email === 'jhansilabs@gmail.com') && user.emailVerified));
       }
     }, (error) => {
       console.error("Admin check listener error:", error);
