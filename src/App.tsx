@@ -747,7 +747,7 @@ export default function App() {
                 className="space-y-4"
               >
                 <div className="rounded-3xl overflow-hidden aspect-[3/4]">
-                  <img src="https://images.unsplash.com/photo-1579152276506-5d5ec7ac6372?auto=format&fit=crop&q=80&w=600" alt="Lab 1" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  <img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&q=80&w=800" alt="Lab 1" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 </div>
                 <div className="bg-blue-600 rounded-3xl p-8 text-white">
                   <h4 className="text-3xl font-bold mb-2">100%</h4>
@@ -773,17 +773,29 @@ export default function App() {
             <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-blue-50 rounded-full blur-3xl opacity-50"></div>
           </div>
 
-          <div>
+          <div className="lg:pl-12">
             <h2 className="text-4xl font-bold text-slate-900 mb-6 leading-tight">Why Choose <span className="text-blue-600">Jhansi Labs?</span></h2>
             <p className="text-slate-600 text-lg mb-10 leading-relaxed">
-              We combine medical expertise with cutting-edge technology to provide you with the most accurate diagnostic results in the shortest possible time.
+              As the <strong>best pathology laboratory in Jhansi</strong>, we combine medical expertise with cutting-edge technology to provide you with the most accurate diagnostic results. Our commitment is to provide the most reliable <strong>medical testing in Jhansi</strong> with the fastest turnaround time.
             </p>
             
             <div className="space-y-8">
               {[
-                { icon: <ShieldCheck className="text-blue-600" />, title: 'Quality Accredited', desc: 'Our laboratory follows international quality standards for testing and calibration.' },
-                { icon: <Clock className="text-blue-600" />, title: 'Fast Turnaround', desc: 'Get most of your test reports within 24 hours of sample collection.' },
-                { icon: <HomeIcon className="text-blue-600" />, title: 'Home Collection', desc: 'Professional phlebotomists visit your home for safe and painless sample collection.' }
+                { 
+                  icon: <ShieldCheck className="text-blue-600" />, 
+                  title: 'Best Pathology Lab in Jhansi', 
+                  desc: 'We are a premier pathology center in Jhansi district, following international quality standards and protocols for 100% accuracy.' 
+                },
+                { 
+                  icon: <HomeIcon className="text-blue-600" />, 
+                  title: 'Home Collection in Jhansi', 
+                  desc: 'Get your blood sample collection at home in Jhansi done by our professional and hygienic phlebotomists. Purely safe and painless.' 
+                },
+                { 
+                  icon: <Clock className="text-blue-600" />, 
+                  title: 'Fast & Accurate Reports', 
+                  desc: 'We use high-end automated machines to ensure error-free diagnostic reports, delivered within hours across Jhansi city.' 
+                }
               ].map((item, i) => (
                 <div key={i} className="flex gap-6">
                   <div className="flex-shrink-0 w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center">
@@ -816,49 +828,74 @@ export default function App() {
               whileHover={{ y: -10 }}
               className="bg-white rounded-[2.5rem] overflow-hidden shadow-2xl shadow-slate-200/50 border border-slate-100 flex flex-col relative max-w-lg w-full"
             >
-              {pkg.tag && (
-                <div className="absolute top-0 right-0 z-20">
-                  <div className="bg-orange-600 text-white text-[10px] font-bold px-4 py-1.5 rounded-bl-2xl uppercase tracking-widest shadow-lg">
-                    {pkg.tag}
+              <div className="h-64 relative overflow-hidden">
+                <img 
+                  src={pkg.image} 
+                  alt={pkg.name} 
+                  className="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
+                  referrerPolicy="no-referrer"
+                />
+                <div className={`absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent flex flex-col justify-end p-8`}>
+                  <div className="relative z-10 text-white">
+                    <p className="text-[10px] font-bold opacity-80 mb-2 tracking-widest uppercase">{pkg.label || 'HEALTH PACKAGE'}</p>
+                    <h3 className="text-2xl font-bold leading-tight">{pkg.name}</h3>
                   </div>
                 </div>
-              )}
-              
-              <div className={`p-10 bg-gradient-to-br ${pkg.color || 'from-blue-600 to-blue-400'} text-white relative overflow-hidden`}>
-                <div className="relative z-10">
-                  <p className="text-xs font-bold opacity-80 mb-4 tracking-widest uppercase">{pkg.label || 'HEALTH PACKAGE'}</p>
-                  <h3 className="text-3xl font-bold mb-6 leading-tight">{pkg.name}</h3>
-                  <div className="flex items-baseline gap-3 mb-4">
+                {pkg.tag && (
+                  <div className="absolute top-4 right-4 z-20">
+                    <div className="bg-orange-600 text-white text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest shadow-lg">
+                      {pkg.tag}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="p-8 flex-1 flex flex-col">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-baseline gap-3">
+                    <div className="flex flex-col">
+                      <span className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Discount Price</span>
+                      <span className="text-5xl font-black text-blue-600">₹{pkg.price}</span>
+                    </div>
                     {pkg.originalPrice && (
-                      <span className="text-xl opacity-60 line-through font-medium">₹{pkg.originalPrice}</span>
+                      <div className="flex flex-col">
+                        <span className="text-[10px] text-red-500 font-bold uppercase tracking-wider mb-1">Was</span>
+                        <span className="text-xl text-red-500 line-through font-bold opacity-70">₹{pkg.originalPrice}</span>
+                      </div>
                     )}
-                    <span className="text-5xl font-black tracking-tighter">₹{pkg.price}</span>
                   </div>
                   {pkg.originalPrice && (
-                    <div className="inline-block bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold">
-                      Save ₹{pkg.originalPrice - pkg.price}
+                    <div className="bg-green-600 text-white px-4 py-2 rounded-2xl text-xs font-black shadow-lg shadow-green-100 flex flex-col items-center">
+                      <span className="text-[10px] opacity-80">SAVE</span>
+                      <span>₹{pkg.originalPrice - pkg.price}</span>
                     </div>
                   )}
                 </div>
-                {/* Decorative circles */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/5 rounded-full blur-xl translate-y-1/2 -translate-x-1/2"></div>
-              </div>
 
-              <div className="p-10 flex-1 flex flex-col">
-                <p className="text-slate-600 mb-8 font-medium leading-relaxed italic border-l-4 border-blue-100 pl-4">
+                <p className="text-slate-600 mb-8 font-medium leading-relaxed border-l-4 border-blue-100 pl-4 text-sm">
                   {pkg.description}
                 </p>
                 <div className="space-y-4 mb-10">
                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Package Includes:</p>
-                  {pkg.testsIncluded.map((test, idx) => (
-                    <div key={idx} className="flex items-start gap-3">
-                      <div className="mt-1 w-5 h-5 rounded-full border-2 border-green-500 flex items-center justify-center flex-shrink-0">
-                        <CheckCircle2 size={12} className="text-green-500" />
+                  {pkg.testsIncluded.map((testStr, idx) => {
+                    const [name, original, price] = testStr.split('|').map(s => s.trim());
+                    return (
+                      <div key={idx} className="flex items-start justify-between gap-3 group">
+                        <div className="flex items-start gap-3">
+                          <div className="mt-1 w-5 h-5 rounded-full border-2 border-green-500 flex items-center justify-center flex-shrink-0">
+                            <CheckCircle2 size={12} className="text-green-500" />
+                          </div>
+                          <span className="text-slate-700 font-medium text-sm leading-tight">{name}</span>
+                        </div>
+                        {original && price && (
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <span className="text-[10px] text-slate-400 line-through font-bold">₹{original}</span>
+                            <span className="text-xs text-blue-600 font-bold">₹{price}</span>
+                          </div>
+                        )}
                       </div>
-                      <span className="text-slate-700 font-medium text-sm leading-tight">{test}</span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 <button 
@@ -1191,7 +1228,7 @@ export default function App() {
                     <div className="flex items-center gap-2">
                       <span className="text-xl font-bold text-slate-900">₹{test.price}</span>
                       {test.originalPrice && (
-                        <span className="text-xs text-slate-400 line-through">₹{test.originalPrice}</span>
+                        <span className="text-xs text-red-500 line-through font-bold opacity-70">₹{test.originalPrice}</span>
                       )}
                     </div>
                   </div>
@@ -1837,62 +1874,6 @@ export default function App() {
 
       {/* Why Choose Us Section */}
       <WhyChooseUs />
-
-      {/* Founder Section */}
-      <section className="py-24 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-[3rem] p-12 shadow-2xl shadow-slate-200/50 border border-slate-100 relative overflow-hidden">
-            <div className="grid lg:grid-cols-2 gap-12 items-center relative z-10">
-              <div className="relative">
-                <div className="aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl">
-                  <img 
-                    src="https://drive.google.com/uc?export=view&id=1xsXh87KAwf34SNPYjHpZeaRBLVn52umq" 
-                    alt="Shyam Sundar Singh" 
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                </div>
-                <div className="absolute -bottom-6 -right-6 bg-blue-600 text-white p-8 rounded-2xl shadow-xl">
-                  <p className="text-sm font-bold uppercase tracking-widest opacity-80 mb-1">Founder & CEO</p>
-                  <h4 className="text-2xl font-black">Shyam Sundar Singh</h4>
-                  <p className="text-xs font-bold opacity-70">Age: 22 Years</p>
-                </div>
-              </div>
-              <div className="lg:pl-12">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider mb-6">
-                  <Award size={14} />
-                  Visionary Leadership
-                </div>
-                <h2 className="text-4xl font-bold text-slate-900 mb-6 leading-tight">A Vision for <span className="text-blue-600">Better Healthcare</span></h2>
-                <p className="text-slate-600 text-lg mb-8 leading-relaxed italic">
-                  "Our mission at Jhansi Labs is to democratize high-quality diagnostics. We believe that every individual deserves access to accurate, timely, and affordable healthcare services, right at their doorstep."
-                </p>
-                <div className="space-y-6">
-                  <div className="flex gap-4">
-                    <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 flex-shrink-0">
-                      <CheckCircle2 size={24} />
-                    </div>
-                    <div>
-                      <h4 className="text-xl font-bold text-slate-900 mb-1">Patient-First Approach</h4>
-                      <p className="text-slate-500">Every decision we make is centered around improving the patient experience and health outcomes.</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-4">
-                    <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 flex-shrink-0">
-                      <CheckCircle2 size={24} />
-                    </div>
-                    <div>
-                      <h4 className="text-xl font-bold text-slate-900 mb-1">Technological Innovation</h4>
-                      <p className="text-slate-500">Leveraging the latest in laboratory technology to ensure 100% accuracy in every report.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-          </div>
-        </div>
-      </section>
 
       {/* Testimonials Section */}
       <section className="py-20 bg-white">
