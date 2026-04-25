@@ -29,6 +29,7 @@ export interface LabLocation {
   phone: string;
   isMain?: boolean;
   image: string;
+  mapUrl?: string;
 }
 
 export interface HealthPackage {

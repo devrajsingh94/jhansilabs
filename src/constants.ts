@@ -9,7 +9,8 @@ export const LAB_LOCATIONS: LabLocation[] = [
     address: 'Bajrang Colony, Jhansi, Uttar Pradesh',
     phone: '+91 9838319144',
     isMain: true,
-    image: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800',
+    image: 'https://images.unsplash.com/photo-1581594629039-593740912c7e?auto=format&fit=crop&q=80&w=800',
+    mapUrl: 'https://maps.app.goo.gl/kUXtHA81Q2qx8bDh6'
   },
 ];
 
@@ -43,7 +44,7 @@ export const HEALTH_PACKAGES: HealthPackage[] = [
       'C - Reactive Protein (CRP) | 500 | 300',
       'Widal Test (Typhoid) | 200 | 100'
     ],
-    image: 'https://images.unsplash.com/photo-1579152276506-5d5ec7ac6372?auto=format&fit=crop&q=80&w=800',
+    image: 'https://images.unsplash.com/photo-1581093458021-e5541850ad21?auto=format&fit=crop&q=80&w=800',
     tag: 'MOST POPULAR',
     label: 'SPECIAL PACKAGE',
     color: 'from-orange-600 to-orange-400'

@@ -747,7 +747,7 @@ export default function App() {
                 className="space-y-4"
               >
                 <div className="rounded-3xl overflow-hidden aspect-[3/4]">
-                  <img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&q=80&w=800" alt="Lab 1" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  <img src="https://images.unsplash.com/photo-1581093458791-9f3c3250bb8b?auto=format&fit=crop&q=80&w=800" alt="Lab 1" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 </div>
                 <div className="bg-blue-600 rounded-3xl p-8 text-white">
                   <h4 className="text-3xl font-bold mb-2">100%</h4>
@@ -1825,6 +1825,17 @@ export default function App() {
                     <Phone size={20} />
                     Call Now
                   </a>
+                  {LAB_LOCATIONS[0].mapUrl && (
+                    <a 
+                      href={LAB_LOCATIONS[0].mapUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-blue-500/30 text-white border border-white/20 px-8 py-4 rounded-2xl font-bold hover:bg-blue-500/50 transition-all flex items-center gap-2"
+                    >
+                      <MapPin size={20} />
+                      View on Map
+                    </a>
+                  )}
                   <button 
                     onClick={() => {
                       setBookingType('lab');
@@ -1940,25 +1951,36 @@ export default function App() {
                   <Phone size={18} className="flex-shrink-0 text-blue-600" />
                   <p className="text-sm font-medium">{loc.phone}</p>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex gap-3 mb-3">
                   <a 
                     href={`tel:${loc.phone}`}
                     className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold text-sm hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
                   >
                     <Phone size={16} />
-                    Call Now
+                    Call
                   </a>
-                  <button 
-                    onClick={() => {
-                      setBookingType('lab');
-                      setPatientDetails(prev => ({ ...prev, location: loc.name }));
-                      setCurrentPage('tests');
-                    }}
-                    className="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold text-sm hover:bg-slate-200 transition-all"
-                  >
-                    Book Here
-                  </button>
+                  {loc.mapUrl && (
+                    <a 
+                      href={loc.mapUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 bg-slate-100 text-blue-600 py-3 rounded-xl font-bold text-sm hover:bg-slate-200 transition-all flex items-center justify-center gap-2"
+                    >
+                      <MapPin size={16} />
+                      Location
+                    </a>
+                  )}
                 </div>
+                <button 
+                  onClick={() => {
+                    setBookingType('lab');
+                    setPatientDetails(prev => ({ ...prev, location: loc.name }));
+                    setCurrentPage('tests');
+                  }}
+                  className="w-full bg-slate-50 text-slate-500 py-3 rounded-xl font-bold text-xs hover:bg-white hover:text-blue-600 border border-slate-100 hover:border-blue-100 transition-all"
+                >
+                  Book Lab Visit
+                </button>
               </motion.div>
             ))}
           </div>
@@ -3015,9 +3037,16 @@ export default function App() {
             <div>
               <h4 className="font-bold text-lg mb-6">Contact Us</h4>
               <ul className="space-y-4 text-slate-400">
-                <li className="flex items-start gap-3">
+                <li className="flex items-start gap-3 group">
                   <MapPin size={18} className="text-blue-600 shrink-0 mt-1" />
-                  <span>{LAB_LOCATIONS[0].address}</span>
+                  <a 
+                    href={LAB_LOCATIONS[0].mapUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-blue-500 transition-colors"
+                  >
+                    {LAB_LOCATIONS[0].address} (View on Map)
+                  </a>
                 </li>
                 <li className="flex items-center gap-3">
                   <Phone size={18} className="text-blue-600 shrink-0" />
