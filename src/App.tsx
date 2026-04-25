@@ -35,7 +35,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { AVAILABLE_TESTS, TEST_CATEGORIES, STAFF_MEMBERS, LAB_LOCATIONS, HEALTH_PACKAGES } from './constants';
-import { LabTest, BookingType, Booking, PatientTest, BookingStatus } from './types';
+import { LabTest, BookingType, Booking, PatientTest, BookingStatus, HealthPackage } from './types';
 import { auth, db, handleFirestoreError, OperationType } from './firebase';
 import { 
   signInWithPopup, 
@@ -734,136 +734,6 @@ export default function App() {
     );
   }
 
-  const PackagesSection = () => (
-    <div className="py-24 bg-slate-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-slate-900 mb-4">Health Packages</h2>
-          <p className="text-slate-600 max-w-2xl mx-auto">Choose from our curated health packages designed for comprehensive wellness monitoring and early detection.</p>
-        </div>
-        <div className="grid md:grid-cols-3 gap-8">
-          {HEALTH_PACKAGES.map((pkg) => (
-            <motion.div 
-              key={pkg.id}
-              whileHover={{ y: -10 }}
-              className="bg-white rounded-[2.5rem] overflow-hidden shadow-2xl shadow-slate-200/50 border border-slate-100 flex flex-col relative"
-            >
-              {pkg.tag && (
-                <div className="absolute top-0 right-0 z-20">
-                  <div className="bg-orange-600 text-white text-[10px] font-bold px-4 py-1.5 rounded-bl-2xl uppercase tracking-widest shadow-lg">
-                    {pkg.tag}
-                  </div>
-                </div>
-              )}
-              
-              <div className={`p-10 bg-gradient-to-br ${pkg.color || 'from-blue-600 to-blue-400'} text-white relative overflow-hidden`}>
-                <div className="relative z-10">
-                  <p className="text-xs font-bold opacity-80 mb-4 tracking-widest uppercase">{pkg.label || 'HEALTH PACKAGE'}</p>
-                  <h3 className="text-3xl font-bold mb-6 leading-tight">{pkg.name}</h3>
-                  <div className="flex items-baseline gap-3 mb-4">
-                    {pkg.originalPrice && (
-                      <span className="text-xl opacity-60 line-through font-medium">₹{pkg.originalPrice}</span>
-                    )}
-                    <span className="text-5xl font-black tracking-tighter">₹{pkg.price}</span>
-                  </div>
-                  {pkg.originalPrice && (
-                    <div className="inline-block bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold">
-                      Save ₹{pkg.originalPrice - pkg.price}
-                    </div>
-                  )}
-                </div>
-                {/* Decorative circles */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/5 rounded-full blur-xl translate-y-1/2 -translate-x-1/2"></div>
-              </div>
-
-              <div className="p-10 flex-1 flex flex-col">
-                <div className="space-y-4 mb-10">
-                  {pkg.testsIncluded.map((test, idx) => (
-                    <div key={idx} className="flex items-start gap-3">
-                      <div className="mt-1 w-5 h-5 rounded-full border-2 border-green-500 flex items-center justify-center flex-shrink-0">
-                        <CheckCircle2 size={12} className="text-green-500" />
-                      </div>
-                      <span className="text-slate-700 font-medium text-sm leading-tight">{test}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <button 
-                  onClick={() => {
-                    const testObj: LabTest = {
-                      id: pkg.id,
-                      name: pkg.name,
-                      price: pkg.price,
-                      category: 'Health Package',
-                      description: pkg.description
-                    };
-                    handleBookNow(testObj);
-                  }}
-                  className={`w-full py-4 rounded-2xl font-bold text-white transition-all shadow-lg flex items-center justify-center gap-2 mt-auto ${
-                    pkg.id === 'pkg-1' ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-200' :
-                    pkg.id === 'pkg-2' ? 'bg-orange-600 hover:bg-orange-700 shadow-orange-200' :
-                    'bg-purple-600 hover:bg-purple-700 shadow-purple-200'
-                  }`}
-                >
-                  Book Now
-                </button>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  const BenefitsBanner = () => (
-    <div className="py-12 bg-slate-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-green-600 rounded-[3rem] p-12 text-white relative overflow-hidden shadow-2xl shadow-green-200">
-          <div className="grid lg:grid-cols-2 gap-12 items-center relative z-10">
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <span className="text-4xl">🎉</span>
-                <h3 className="text-4xl font-bold leading-tight">Additional Benefits on <br />All Packages</h3>
-              </div>
-              <div className="grid sm:grid-cols-1 gap-6 mb-8">
-                {[
-                  'FREE Home Sample Collection',
-                  'FREE Report Delivery at your doorstep',
-                  '24-Hour Report turnaround time',
-                  'Free Doctor Consultation on reports'
-                ].map((benefit, i) => (
-                  <div key={i} className="flex items-center gap-4">
-                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center border border-white/30">
-                      <CheckCircle2 size={18} />
-                    </div>
-                    <span className="text-xl font-bold tracking-tight">{benefit}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="inline-block bg-yellow-400 text-green-900 px-6 py-3 rounded-2xl font-black text-xl shadow-xl animate-bounce">
-                USE CODE: FIRST100 for ₹100 OFF!
-              </div>
-            </div>
-            <div className="text-center lg:text-right">
-              <h4 className="text-3xl font-bold mb-8 leading-tight">Don't Miss Out on These Amazing Deals!</h4>
-              <button 
-                onClick={() => { setCurrentPage('home'); window.location.hash = 'packages'; }}
-                className="bg-white text-green-700 px-10 py-5 rounded-3xl font-bold text-xl hover:bg-green-50 transition-all shadow-xl"
-              >
-                Book Your Package Now
-              </button>
-              <p className="mt-6 text-green-100/70 text-sm font-medium">*Offers valid till end of month</p>
-            </div>
-          </div>
-          {/* Decorative elements */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
-        </div>
-      </div>
-    </div>
-  );
-
   const WhyChooseUs = () => (
     <section className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -932,7 +802,135 @@ export default function App() {
     </section>
   );
 
+  const PackagesSection = () => (
+    <div className="py-24 bg-slate-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold text-slate-900 mb-4">Health Packages</h2>
+          <p className="text-slate-600 max-w-2xl mx-auto">Choose from our curated health packages designed for comprehensive wellness monitoring and early detection.</p>
+        </div>
+        <div className="flex justify-center">
+          {HEALTH_PACKAGES.map((pkg) => (
+            <motion.div 
+              key={pkg.id}
+              whileHover={{ y: -10 }}
+              className="bg-white rounded-[2.5rem] overflow-hidden shadow-2xl shadow-slate-200/50 border border-slate-100 flex flex-col relative max-w-lg w-full"
+            >
+              {pkg.tag && (
+                <div className="absolute top-0 right-0 z-20">
+                  <div className="bg-orange-600 text-white text-[10px] font-bold px-4 py-1.5 rounded-bl-2xl uppercase tracking-widest shadow-lg">
+                    {pkg.tag}
+                  </div>
+                </div>
+              )}
+              
+              <div className={`p-10 bg-gradient-to-br ${pkg.color || 'from-blue-600 to-blue-400'} text-white relative overflow-hidden`}>
+                <div className="relative z-10">
+                  <p className="text-xs font-bold opacity-80 mb-4 tracking-widest uppercase">{pkg.label || 'HEALTH PACKAGE'}</p>
+                  <h3 className="text-3xl font-bold mb-6 leading-tight">{pkg.name}</h3>
+                  <div className="flex items-baseline gap-3 mb-4">
+                    {pkg.originalPrice && (
+                      <span className="text-xl opacity-60 line-through font-medium">₹{pkg.originalPrice}</span>
+                    )}
+                    <span className="text-5xl font-black tracking-tighter">₹{pkg.price}</span>
+                  </div>
+                  {pkg.originalPrice && (
+                    <div className="inline-block bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold">
+                      Save ₹{pkg.originalPrice - pkg.price}
+                    </div>
+                  )}
+                </div>
+                {/* Decorative circles */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-black/5 rounded-full blur-xl translate-y-1/2 -translate-x-1/2"></div>
+              </div>
 
+              <div className="p-10 flex-1 flex flex-col">
+                <p className="text-slate-600 mb-8 font-medium leading-relaxed italic border-l-4 border-blue-100 pl-4">
+                  {pkg.description}
+                </p>
+                <div className="space-y-4 mb-10">
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Package Includes:</p>
+                  {pkg.testsIncluded.map((test, idx) => (
+                    <div key={idx} className="flex items-start gap-3">
+                      <div className="mt-1 w-5 h-5 rounded-full border-2 border-green-500 flex items-center justify-center flex-shrink-0">
+                        <CheckCircle2 size={12} className="text-green-500" />
+                      </div>
+                      <span className="text-slate-700 font-medium text-sm leading-tight">{test}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <button 
+                  onClick={() => {
+                    const testObj: LabTest = {
+                      id: pkg.id,
+                      name: pkg.name,
+                      price: pkg.price,
+                      category: 'Health Package',
+                      description: pkg.description
+                    };
+                    handleBookNow(testObj);
+                  }}
+                  className="w-full py-4 rounded-2xl font-bold text-white transition-all shadow-lg flex items-center justify-center gap-2 mt-auto bg-blue-600 hover:bg-blue-700 shadow-blue-200"
+                >
+                  Book Now
+                </button>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const BenefitsBanner = () => (
+    <div className="py-12 bg-slate-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-green-600 rounded-[3rem] p-12 text-white relative overflow-hidden shadow-2xl shadow-green-200">
+          <div className="grid lg:grid-cols-2 gap-12 items-center relative z-10">
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <span className="text-4xl">🎉</span>
+                <h3 className="text-4xl font-bold leading-tight">Additional Benefits on <br />All Packages</h3>
+              </div>
+              <div className="grid sm:grid-cols-1 gap-6 mb-8">
+                {[
+                  'FREE Home Sample Collection',
+                  'FREE Report Delivery at your doorstep',
+                  '24-Hour Report turnaround time',
+                  'Free Doctor Consultation on reports'
+                ].map((benefit, i) => (
+                  <div key={i} className="flex items-center gap-4">
+                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center border border-white/30">
+                      <CheckCircle2 size={18} />
+                    </div>
+                    <span className="text-xl font-bold tracking-tight">{benefit}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="inline-block bg-yellow-400 text-green-900 px-6 py-3 rounded-2xl font-black text-xl shadow-xl animate-bounce">
+                USE CODE: FIRST100 for ₹100 OFF!
+              </div>
+            </div>
+            <div className="text-center lg:text-right">
+              <h4 className="text-3xl font-bold mb-8 leading-tight">Don\'t Miss Out on These Amazing Deals!</h4>
+              <button 
+                onClick={() => { setCurrentPage('home'); window.location.hash = 'packages'; }}
+                className="bg-white text-green-700 px-10 py-5 rounded-3xl font-bold text-xl hover:bg-green-50 transition-all shadow-xl"
+              >
+                Book Your Package Now
+              </button>
+              <p className="mt-6 text-green-100/70 text-sm font-medium">*Offers valid till end of month</p>
+            </div>
+          </div>
+          {/* Decorative elements */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
+        </div>
+      </div>
+    </div>
+  );
 
   const PackagesPage = () => (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -1575,7 +1573,7 @@ export default function App() {
                 Call Now
               </a>
               <button 
-                onClick={() => { setCurrentPage('home'); setIsMenuOpen(false); }}
+                onClick={() => setCurrentPage('home')}
                 className={`text-lg font-medium ${currentPage === 'home' ? 'text-blue-600' : 'text-slate-900'}`}
               >
                 Home
@@ -1599,7 +1597,7 @@ export default function App() {
               </button>
               <button 
                 onClick={() => { setCurrentPage('packages'); setIsMenuOpen(false); }}
-                className={`text-lg font-medium ${currentPage === 'packages' ? 'text-blue-600' : 'text-slate-900'}`}
+                className={`text-lg font-medium transition-colors ${currentPage === 'packages' ? 'text-blue-600' : 'text-slate-900 hover:text-blue-600'}`}
               >
                 Packages
               </button>
@@ -1830,7 +1828,7 @@ export default function App() {
           </div>
         </div>
       </section>
-
+      
       {/* Health Packages Section */}
       <PackagesSection />
 
@@ -1906,7 +1904,7 @@ export default function App() {
           <div className="grid md:grid-cols-3 gap-8">
             {[
               { name: 'Rahul Mehta', text: 'Very professional staff and the home collection was on time. Reports were delivered within 24 hours.', rating: 5 },
-              { name: 'Priya Singh', text: 'The packages are very well priced. I got my full body checkup done and the process was seamless.', rating: 5 },
+              { name: 'Priya Singh', text: 'The tests are very well priced. I got my full body checkup done and the process was seamless.', rating: 5 },
               { name: 'Amit Verma', text: 'Clean and hygienic lab. The technicians are very skilled and made the blood collection painless.', rating: 4 }
             ].map((review, i) => (
               <div key={i} className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100">
