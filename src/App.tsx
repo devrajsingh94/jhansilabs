@@ -563,126 +563,45 @@ export default function App() {
         totalAmount = Math.max(0, totalAmount - 100);
       }
 
-      // 1. Create Razorpay Order on server
-      const orderResponse = await fetch('/api/create-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          amount: totalAmount,
-          receipt: `rcpt_${Date.now()}`,
-        }),
-      });
-
-      const contentType = orderResponse.headers.get("content-type");
-      if (!orderResponse.ok) {
-        let errorMessage = 'Failed to create payment order';
-        if (contentType && contentType.includes("application/json")) {
-          const errorData = await orderResponse.json();
-          errorMessage = errorData.error || errorMessage;
-        } else {
-          errorMessage = `Server Error: ${orderResponse.status} ${orderResponse.statusText}`;
-        }
-        throw new Error(errorMessage);
-      }
-
-      if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("Invalid response from server. Expected JSON but received something else.");
-      }
-
-      const order = await orderResponse.json();
-
-      // 2. Get Razorpay Key Id
-      const keyResponse = await fetch('/api/razorpay-key');
-      const keyContentType = keyResponse.headers.get("content-type");
-      
-      if (!keyResponse.ok || !keyContentType || !keyContentType.includes("application/json")) {
-        throw new Error('Failed to retrieve payment configuration from server');
-      }
-      
-      const { keyId } = await keyResponse.json();
-
-      if (!keyId) {
-        throw new Error('Razorpay Key ID missing from server configuration');
-      }
-
-      // 3. Initiate Razorpay Payment
-      const razorpayOptions = {
-        key: keyId,
-        amount: order.amount,
-        currency: order.currency,
-        name: "Jhansi Labs",
-        description: "Medical Test Booking",
-        order_id: order.id,
-        handler: async (response: any) => {
-          // Payment successful! Now save booking to Firestore
-          try {
-            setIsBookingInProgress(true);
-            const bookingData = {
-              userId: user.uid,
-              tests: selectedTests,
-              type: bookingType,
-              date: patientDetails.date,
-              time: patientDetails.time,
-              status: 'pending',
-              paymentStatus: 'paid',
-              razorpayOrderId: order.id,
-              razorpayPaymentId: response.razorpay_payment_id,
-              createdAt: Date.now(),
-              totalAmount,
-              patientName: patientDetails.name,
-              patientPhone: patientDetails.phone,
-              patientAge: parseInt(patientDetails.age),
-              location: patientDetails.location,
-              doctorReference: patientDetails.doctorReference,
-              referralCode: patientDetails.referralCode,
-              prescriptionUrl: patientDetails.prescriptionUrl
-            };
-
-            const docRef = await addDoc(collection(db, 'bookings'), bookingData);
-
-            if (user) {
-              const userRef = doc(db, 'users', user.uid);
-              await setDoc(userRef, {
-                phone: patientDetails.phone,
-                age: patientDetails.age,
-                address: patientDetails.location,
-                displayName: patientDetails.name
-              }, { merge: true });
-            }
-
-            setLastBooking({ ...bookingData, id: docRef.id });
-            setBookingStep('confirm');
-            setSelectedTests([]);
-            toast.success('Payment successful & Booking confirmed!');
-          } catch (error) {
-            handleFirestoreError(error, OperationType.CREATE, 'bookings');
-            toast.error('Payment was successful but booking failed. Please contact support.');
-          } finally {
-            setIsBookingInProgress(false);
-          }
-        },
-        prefill: {
-          name: patientDetails.name,
-          email: user.email,
-          contact: patientDetails.phone,
-        },
-        theme: {
-          color: "#2563eb",
-        },
-        modal: {
-          ondismiss: () => {
-            setIsBookingInProgress(false);
-            toast.error('Payment cancelled');
-          }
-        }
+      const bookingData = {
+        userId: user.uid,
+        tests: selectedTests,
+        type: bookingType,
+        date: patientDetails.date,
+        time: patientDetails.time,
+        status: 'pending',
+        createdAt: Date.now(),
+        totalAmount,
+        patientName: patientDetails.name,
+        patientPhone: patientDetails.phone,
+        patientAge: parseInt(patientDetails.age),
+        location: patientDetails.location,
+        doctorReference: patientDetails.doctorReference,
+        referralCode: patientDetails.referralCode,
+        prescriptionUrl: patientDetails.prescriptionUrl
       };
 
-      const rzp = new (window as any).Razorpay(razorpayOptions);
-      rzp.open();
+      const docRef = await addDoc(collection(db, 'bookings'), bookingData);
 
-    } catch (error: any) {
-      console.error("Booking Error:", error);
-      toast.error(error.message || 'Booking failed. Please try again.');
+      // Update user profile with latest details if they changed
+      if (user) {
+        const userRef = doc(db, 'users', user.uid);
+        await setDoc(userRef, {
+          phone: patientDetails.phone,
+          age: patientDetails.age,
+          address: patientDetails.location,
+          displayName: patientDetails.name
+        }, { merge: true });
+      }
+
+      setLastBooking({ ...bookingData, id: docRef.id });
+      setBookingStep('confirm');
+      setSelectedTests([]);
+      toast.success('Booking successful!');
+    } catch (error) {
+      handleFirestoreError(error, OperationType.CREATE, 'bookings');
+      toast.error('Booking failed. Please try again.');
+    } finally {
       setIsBookingInProgress(false);
     }
   };
