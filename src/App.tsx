@@ -573,19 +573,36 @@ export default function App() {
         }),
       });
 
+      const contentType = orderResponse.headers.get("content-type");
       if (!orderResponse.ok) {
-        const errorData = await orderResponse.json();
-        throw new Error(errorData.error || 'Failed to create payment order');
+        let errorMessage = 'Failed to create payment order';
+        if (contentType && contentType.includes("application/json")) {
+          const errorData = await orderResponse.json();
+          errorMessage = errorData.error || errorMessage;
+        } else {
+          errorMessage = `Server Error: ${orderResponse.status} ${orderResponse.statusText}`;
+        }
+        throw new Error(errorMessage);
+      }
+
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Invalid response from server. Expected JSON but received something else.");
       }
 
       const order = await orderResponse.json();
 
       // 2. Get Razorpay Key Id
       const keyResponse = await fetch('/api/razorpay-key');
+      const keyContentType = keyResponse.headers.get("content-type");
+      
+      if (!keyResponse.ok || !keyContentType || !keyContentType.includes("application/json")) {
+        throw new Error('Failed to retrieve payment configuration from server');
+      }
+      
       const { keyId } = await keyResponse.json();
 
       if (!keyId) {
-        throw new Error('Razorpay Key ID not found');
+        throw new Error('Razorpay Key ID missing from server configuration');
       }
 
       // 3. Initiate Razorpay Payment

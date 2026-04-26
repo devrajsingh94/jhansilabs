@@ -19,11 +19,19 @@ async function startServer() {
   });
 
   // API Routes
+  app.get("/api/health", (req, res) => {
+    res.json({ status: "ok", env: process.env.NODE_ENV });
+  });
+
   app.get("/api/razorpay-key", (req, res) => {
-    res.json({ keyId: process.env.RAZORPAY_KEY_ID });
+    if (!process.env.RAZORPAY_KEY_ID) {
+      console.warn("RAZORPAY_KEY_ID is missing in environment");
+    }
+    res.json({ keyId: process.env.RAZORPAY_KEY_ID || "" });
   });
 
   app.post("/api/create-order", async (req, res) => {
+    console.log("Received create-order request:", req.body);
     try {
       const { amount, currency = "INR", receipt } = req.body;
       
@@ -31,16 +39,23 @@ async function startServer() {
         return res.status(400).json({ error: "Amount is required" });
       }
 
+      if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+        console.error("Razorpay keys are missing");
+        return res.status(500).json({ error: "Payment gateway configuration missing" });
+      }
+
       const options = {
-        amount: Math.round(amount * 100), // Razorpay expects amount in paise
+        amount: Math.round(Number(amount) * 100), // Razorpay expects amount in paise
         currency,
-        receipt,
+        receipt: receipt || `rcpt_${Date.now()}`,
       };
 
+      console.log("Creating Razorpay order with options:", options);
       const order = await razorpay.orders.create(options);
+      console.log("Razorpay order created:", order.id);
       res.json(order);
     } catch (error: any) {
-      console.error("Razorpay Order Error:", error);
+      console.error("Razorpay Order Error Details:", error);
       res.status(500).json({ error: error.message || "Failed to create order" });
     }
   });
