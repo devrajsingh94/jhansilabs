@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Phone, Clock } from 'lucide-react';
+import { MapPin, Phone, Clock, Plus } from 'lucide-react';
 import { LAB_LOCATIONS } from '../constants';
 
 interface LocationsSectionProps {

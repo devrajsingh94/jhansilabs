@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Mail, Award, Stethoscope } from 'lucide-react';
+import { Mail, Award, Stethoscope, Plus } from 'lucide-react';
 import { STAFF_MEMBERS } from '../constants';
 
 export const StaffSection = () => (

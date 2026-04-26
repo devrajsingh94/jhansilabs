@@ -8,15 +8,9 @@
         "uid": { "type": "string" },
         "email": { "type": "string", "format": "email" },
         "displayName": { "type": "string" },
-        "photoURL": { "type": "string" },
-        "lastLogin": { "type": "number" },
-        "phone": { "type": "string" },
-        "age": { "type": "string" },
+        "phoneNumber": { "type": "string" },
         "address": { "type": "string" },
-        "role": { "type": "string", "enum": ["admin", "user"] },
-        "createdAt": { "type": "number" },
-        "lastBookingId": { "type": "string" },
-        "updatedAt": { "type": "number" }
+        "role": { "type": "string", "enum": ["admin", "user"] }
       },
       "required": ["uid", "email", "displayName"]
     },
@@ -43,6 +37,7 @@
         "type": { "type": "string", "enum": ["home", "lab"] },
         "date": { "type": "string" },
         "time": { "type": "string" },
+        "address": { "type": "string" },
         "status": { "type": "string", "enum": ["pending", "confirmed", "completed", "cancelled"] },
         "createdAt": { "type": "number" },
         "totalAmount": { "type": "number" },

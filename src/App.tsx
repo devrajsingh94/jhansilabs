@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
+  Plus,
   Search, 
   MapPin, 
   Home as HomeIcon, 
@@ -71,7 +72,7 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [priceRange, setPriceRange] = useState({ min: 0, max: 10000 });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState<'home' | 'packages' | 'tests' | 'terms' | 'success'>('home');
+  const [currentPage, setCurrentPage] = useState<'home' | 'packages' | 'tests' | 'terms'>('home');
   const [selectedTests, setSelectedTests] = useState<LabTest[]>([]);
   const [showSearchTip, setShowSearchTip] = useState(false);
   const [hasShownSearchTip, setHasShownSearchTip] = useState(false);
@@ -545,11 +546,7 @@ export default function App() {
   };
 
   const confirmBooking = async () => {
-    if (!user) {
-      toast.error('You must be logged in to book a test');
-      handleSignIn();
-      return;
-    }
+    if (!user || selectedTests.length === 0) return;
 
     if (!patientDetails.name || !patientDetails.phone || !patientDetails.age || !patientDetails.date || !patientDetails.time || !patientDetails.location) {
       toast.error('Please fill in all required details');
@@ -578,48 +575,33 @@ export default function App() {
         totalAmount,
         patientName: patientDetails.name,
         patientPhone: patientDetails.phone,
-        patientAge: parseInt(patientDetails.age) || 0,
+        patientAge: parseInt(patientDetails.age),
         location: patientDetails.location,
         doctorReference: patientDetails.doctorReference,
-        referralCode: patientDetails.referralCode.trim(),
+        referralCode: patientDetails.referralCode,
         prescriptionUrl: patientDetails.prescriptionUrl
       };
 
-      // Ensure db exists
-      if (!db) throw new Error('Database not initialized');
-
       const docRef = await addDoc(collection(db, 'bookings'), bookingData);
 
-      // Update user profile with latest details
-      const userRef = doc(db, 'users', user.uid);
-      await setDoc(userRef, {
-        phone: patientDetails.phone,
-        age: patientDetails.age,
-        address: patientDetails.location,
-        displayName: patientDetails.name,
-        lastBookingId: docRef.id,
-        updatedAt: Date.now()
-      }, { merge: true });
+      // Update user profile with latest details if they changed
+      if (user) {
+        const userRef = doc(db, 'users', user.uid);
+        await setDoc(userRef, {
+          phone: patientDetails.phone,
+          age: patientDetails.age,
+          address: patientDetails.location,
+          displayName: patientDetails.name
+        }, { merge: true });
+      }
 
       setLastBooking({ ...bookingData, id: docRef.id });
-      
-      // Clean up local state
+      setBookingStep('confirm');
       setSelectedTests([]);
-      setIsBookingModalOpen(false);
-      
-      // Transition to success page
-      setCurrentPage('success');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      
-      toast.success('Booking confirmed successfully!');
-    } catch (error: any) {
-      console.error('Booking Error:', error);
-      try {
-        handleFirestoreError(error, OperationType.CREATE, 'bookings');
-      } catch (innerError) {
-        // Log inner error if handleFirestoreError throws
-      }
-      toast.error(error.message || 'Booking failed. Please check your connection and try again.');
+      toast.success('Booking successful!');
+    } catch (error) {
+      handleFirestoreError(error, OperationType.CREATE, 'bookings');
+      toast.error('Booking failed. Please try again.');
     } finally {
       setIsBookingInProgress(false);
     }
@@ -766,7 +748,7 @@ export default function App() {
                 className="space-y-4"
               >
                 <div className="rounded-3xl overflow-hidden aspect-[3/4]">
-                  <img src="https://images.unsplash.com/photo-1581093458791-9f3c3250bb8b?auto=format&fit=crop&q=80&w=800" alt="Lab 1" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  <img src="https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&q=80&w=800" alt="Lab 1" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 </div>
                 <div className="bg-blue-600 rounded-3xl p-8 text-white">
                   <h4 className="text-3xl font-bold mb-2">100%</h4>
@@ -1077,143 +1059,6 @@ export default function App() {
     </motion.div>
   );
 
-  const SuccessPage = () => {
-    if (!lastBooking) {
-      setCurrentPage('home');
-      return null;
-    }
-
-    return (
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="py-20 bg-slate-50 min-h-screen"
-      >
-        <div className="max-w-2xl mx-auto px-4">
-          <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 overflow-hidden border border-white">
-            <div className="bg-green-600 p-12 text-center text-white relative">
-              <motion.div 
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="w-24 h-24 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center mx-auto mb-6"
-              >
-                <CheckCircle2 size={48} className="text-white" />
-              </motion.div>
-              <h2 className="text-4xl font-extrabold mb-2">Booking Confirmed!</h2>
-              <p className="text-green-50 font-medium">Your health journey starts here.</p>
-              
-              {/* Decorative dots */}
-              <div className="absolute top-4 left-4 opacity-20"><Plus size={20} /></div>
-              <div className="absolute bottom-4 right-4 opacity-20"><Plus size={20} /></div>
-            </div>
-
-            <div className="p-8 sm:p-12">
-              <div className="flex items-center justify-between gap-2 mb-8 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Confirmation ID</span>
-                  <span className="text-lg font-mono font-bold text-blue-600">
-                    {lastBooking.id || 'N/A'}
-                  </span>
-                </div>
-                <div className="text-right">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Status</span>
-                  <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-black uppercase tracking-tighter shadow-sm border border-green-200">
-                    Verified
-                  </span>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shrink-0">
-                    <User size={24} />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-slate-900">{lastBooking.patientName}</h4>
-                    <p className="text-sm text-slate-500">{lastBooking.patientPhone} | Age: {lastBooking.patientAge}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4 text-left">
-                  <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shrink-0">
-                    <Calendar size={24} />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-slate-900">{lastBooking.date} at {lastBooking.time}</h4>
-                    <p className="text-sm text-slate-500">{lastBooking.type === 'home' ? 'Home Sample Collection' : 'Self Lab Visit'}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4 text-left">
-                  <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shrink-0">
-                    <MapPin size={24} />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-slate-900">Lab/Collection Location</h4>
-                    <p className="text-sm text-slate-500 line-clamp-2">{lastBooking.location}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="my-10 pt-8 border-t border-slate-100">
-                <div className="flex justify-between items-center mb-4">
-                  <h4 className="font-bold text-slate-900">Order Summary</h4>
-                  <span className="text-xs font-bold text-slate-400">{lastBooking.tests?.length} Items</span>
-                </div>
-                <div className="space-y-3 mb-6 bg-slate-50/50 p-6 rounded-3xl border border-slate-100 shadow-inner">
-                  {lastBooking.tests?.map((test: any) => (
-                    <div key={test.id} className="flex justify-between text-sm">
-                      <span className="text-slate-600 font-medium">{test.name}</span>
-                      <span className="font-bold text-slate-900">₹{test.price}</span>
-                    </div>
-                  ))}
-                  <div className="pt-4 border-t border-dashed border-slate-300 flex justify-between items-center">
-                    <div>
-                      <span className="text-lg font-bold text-slate-900">Total Paid</span>
-                    </div>
-                    <span className="text-3xl font-black text-blue-600">₹{lastBooking.totalAmount}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <button 
-                  onClick={() => {
-                    const text = `Booking Confirmation - Jhansi Labs\n\nID: ${lastBooking.id}\nPatient: ${lastBooking.patientName}\nTests: ${lastBooking.tests?.map((t: any) => t.name).join(', ')}\nTotal: ₹${lastBooking.totalAmount}\nDate: ${lastBooking.date}\nTime: ${lastBooking.time}`;
-                    const blob = new Blob([text], { type: 'text/plain' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `jhansi-labs-receipt-${lastBooking.id}.txt`;
-                    a.click();
-                  }}
-                  className="bg-slate-900 text-white py-4 rounded-2xl font-bold hover:bg-slate-800 transition-all shadow-lg flex items-center justify-center gap-2"
-                >
-                  <Download size={18} />
-                  Download Receipt
-                </button>
-                <button 
-                  onClick={() => {
-                    setCurrentPage('home');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                  className="bg-white border-2 border-slate-100 text-slate-600 py-4 rounded-2xl font-bold hover:border-blue-600 hover:text-blue-600 transition-all flex items-center justify-center gap-2"
-                >
-                  Return to Home
-                  <ArrowRight size={18} />
-                </button>
-              </div>
-              
-              <p className="text-center mt-8 text-xs text-slate-400 font-medium">
-                Our support team will contact you shortly on <strong>{lastBooking.patientPhone}</strong> to finalize details.
-              </p>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-    );
-  };
   const TestsPage = () => (
     <motion.div 
       key="tests"
@@ -1981,17 +1826,6 @@ export default function App() {
                     <Phone size={20} />
                     Call Now
                   </a>
-                  {LAB_LOCATIONS[0].mapUrl && (
-                    <a 
-                      href={LAB_LOCATIONS[0].mapUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-blue-500/30 text-white border border-white/20 px-8 py-4 rounded-2xl font-bold hover:bg-blue-500/50 transition-all flex items-center gap-2"
-                    >
-                      <MapPin size={20} />
-                      View on Map
-                    </a>
-                  )}
                   <button 
                     onClick={() => {
                       setBookingType('lab');
@@ -2107,36 +1941,25 @@ export default function App() {
                   <Phone size={18} className="flex-shrink-0 text-blue-600" />
                   <p className="text-sm font-medium">{loc.phone}</p>
                 </div>
-                <div className="flex gap-3 mb-3">
+                <div className="flex gap-3">
                   <a 
                     href={`tel:${loc.phone}`}
                     className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold text-sm hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
                   >
                     <Phone size={16} />
-                    Call
+                    Call Now
                   </a>
-                  {loc.mapUrl && (
-                    <a 
-                      href={loc.mapUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 bg-slate-100 text-blue-600 py-3 rounded-xl font-bold text-sm hover:bg-slate-200 transition-all flex items-center justify-center gap-2"
-                    >
-                      <MapPin size={16} />
-                      Location
-                    </a>
-                  )}
+                  <button 
+                    onClick={() => {
+                      setBookingType('lab');
+                      setPatientDetails(prev => ({ ...prev, location: loc.name }));
+                      setCurrentPage('tests');
+                    }}
+                    className="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold text-sm hover:bg-slate-200 transition-all"
+                  >
+                    Book Here
+                  </button>
                 </div>
-                <button 
-                  onClick={() => {
-                    setBookingType('lab');
-                    setPatientDetails(prev => ({ ...prev, location: loc.name }));
-                    setCurrentPage('tests');
-                  }}
-                  className="w-full bg-slate-50 text-slate-500 py-3 rounded-xl font-bold text-xs hover:bg-white hover:text-blue-600 border border-slate-100 hover:border-blue-100 transition-all"
-                >
-                  Book Lab Visit
-                </button>
               </motion.div>
             ))}
           </div>
@@ -2148,7 +1971,6 @@ export default function App() {
   {currentPage === 'packages' && PackagesPage()}
   {currentPage === 'tests' && TestsPage()}
   {currentPage === 'terms' && TermsPage()}
-  {currentPage === 'success' && SuccessPage()}
 </AnimatePresence>
 
       {/* Floating Selection Bar */}
@@ -3194,16 +3016,9 @@ export default function App() {
             <div>
               <h4 className="font-bold text-lg mb-6">Contact Us</h4>
               <ul className="space-y-4 text-slate-400">
-                <li className="flex items-start gap-3 group">
+                <li className="flex items-start gap-3">
                   <MapPin size={18} className="text-blue-600 shrink-0 mt-1" />
-                  <a 
-                    href={LAB_LOCATIONS[0].mapUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-blue-500 transition-colors"
-                  >
-                    {LAB_LOCATIONS[0].address} (View on Map)
-                  </a>
+                  <span>{LAB_LOCATIONS[0].address}</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <Phone size={18} className="text-blue-600 shrink-0" />
