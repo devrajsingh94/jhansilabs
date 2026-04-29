@@ -24,6 +24,7 @@ import {
   Package,
   Tag,
   ExternalLink,
+  Instagram,
   Mail,
   Award,
   Lock,
@@ -1470,10 +1471,12 @@ export default function App() {
       </AnimatePresence>
       
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <div 
+              role="button"
+              aria-label="Jhansi Labs Home"
               className="flex items-center gap-2 cursor-pointer group"
               onClick={() => { setCurrentPage('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
             >
@@ -1486,6 +1489,7 @@ export default function App() {
             <div className="hidden md:flex items-center gap-8">
               <a 
                 href={`tel:${LAB_LOCATIONS[0].phone}`}
+                aria-label="Call Jhansi Labs"
                 className="flex items-center gap-2 text-sm font-bold text-blue-600 bg-blue-50 px-4 py-2 rounded-full hover:bg-blue-100 transition-all"
               >
                 <Phone size={16} />
@@ -1493,12 +1497,14 @@ export default function App() {
               </a>
               <button 
                 onClick={() => setCurrentPage('home')}
+                aria-label="Navigate to Home"
                 className={`text-sm font-medium transition-colors ${currentPage === 'home' ? 'text-blue-600' : 'text-slate-600 hover:text-blue-600'}`}
               >
                 Home
               </button>
               <button 
                 onClick={() => setCurrentPage('tests')}
+                aria-label="Book a Test"
                 className={`text-sm font-bold transition-all px-4 py-2 rounded-full relative ${
                   currentPage === 'tests' 
                   ? 'text-white bg-blue-600 shadow-lg shadow-blue-200' 
@@ -1516,6 +1522,7 @@ export default function App() {
               </button>
               <button 
                 onClick={() => setCurrentPage('packages')}
+                aria-label="View Health Packages"
                 className={`text-sm font-medium transition-colors ${currentPage === 'packages' ? 'text-blue-600' : 'text-slate-600 hover:text-blue-600'}`}
               >
                 Packages
@@ -1524,6 +1531,7 @@ export default function App() {
                 <>
                   <button 
                     onClick={() => setShowPatientHistory(true)}
+                    aria-label="View My Patient History"
                     className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors flex items-center gap-1"
                   >
                     <FileText size={16} />
@@ -1531,6 +1539,7 @@ export default function App() {
                   </button>
                   <button 
                     onClick={() => { /* We can reuse auth modal or history modal for profile */ setShowAuthModal(true); setAuthMode('forgot-password'); }}
+                    aria-label="Reset Password"
                     className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors flex items-center gap-1"
                   >
                     <User size={16} />
@@ -1539,6 +1548,7 @@ export default function App() {
                   {isAdmin && (
                     <button 
                       onClick={() => setShowAdminPanel(true)}
+                      aria-label="Access Admin Panel"
                       className="text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors flex items-center gap-1 px-3 py-1.5 bg-blue-50 rounded-lg"
                     >
                       <ShieldCheck size={16} />
@@ -1551,7 +1561,7 @@ export default function App() {
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
                     {user.photoURL ? (
-                      <img src={user.photoURL} alt="" className="w-8 h-8 rounded-full border border-slate-200" />
+                      <img src={user.photoURL} alt={user.displayName || "User Profile"} className="w-8 h-8 rounded-full border border-slate-200" />
                     ) : (
                       <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
                         <User size={16} />
@@ -1561,6 +1571,7 @@ export default function App() {
                   </div>
                   <button 
                     onClick={handleSignOut}
+                    aria-label="Sign Out"
                     className="text-slate-400 hover:text-red-500 transition-colors"
                     title="Sign Out"
                   >
@@ -1571,12 +1582,14 @@ export default function App() {
                 <div className="flex items-center gap-3">
                   <button 
                     onClick={() => { setAuthMode('login'); setShowAuthModal(true); }}
+                    aria-label="Sign In"
                     className="text-slate-600 hover:text-blue-600 px-4 py-2 text-sm font-semibold transition-all"
                   >
                     Sign In
                   </button>
                   <button 
                     onClick={() => { setAuthMode('signup'); setShowAuthModal(true); }}
+                    aria-label="Sign Up"
                     className="bg-blue-600 text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-blue-700 transition-all shadow-md shadow-blue-100 flex items-center gap-2"
                   >
                     <User size={16} />
@@ -1586,12 +1599,16 @@ export default function App() {
               )}
             </div>
 
-            <button className="md:hidden text-slate-600" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            <button 
+              className="md:hidden text-slate-600" 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label={isMenuOpen ? "Close Menu" : "Open Menu"}
+            >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </div>
-      </nav>
+      </header>
 
       {/* Mobile Menu */}
       <AnimatePresence>
@@ -1687,16 +1704,21 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <AnimatePresence mode="wait">
-        {currentPage === 'home' && (
-          <motion.div
-            key="home"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-          >
+      <main>
+        <AnimatePresence mode="wait">
+          {currentPage === 'home' && (
+            <motion.div
+              key="home"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
             {/* Hero Section */}
             <section className="relative pt-12 pb-20 overflow-hidden">
+              {/* Background Blobs decor */}
+              <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-[600px] h-[600px] bg-blue-50/50 rounded-full blur-3xl -z-10" />
+              <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/4 w-[400px] h-[400px] bg-indigo-50/50 rounded-full blur-3xl -z-10" />
+              
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -1704,25 +1726,25 @@ export default function App() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-wider mb-6">
                 <ShieldCheck size={14} />
                 Quality Accredited Laboratory
               </div>
               <h1 className="text-5xl lg:text-6xl font-extrabold text-slate-900 leading-[1.1] mb-6">
-                Accurate Results, <br />
-                <span className="text-blue-600">Care You Can Trust.</span>
+                Jhansi's Top <br />
+                <span className="text-blue-600">Pathology</span> Lab.
               </h1>
               <div className="bg-green-50 border border-green-100 rounded-2xl p-4 mb-8 flex items-center gap-4">
                 <div className="w-12 h-12 bg-green-600 text-white rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-green-200">
                   <Package size={24} />
                 </div>
                 <div>
-                  <p className="text-green-800 font-bold">Free Sample Collection & Report Delivery</p>
-                  <p className="text-green-600 text-sm">No extra charges for home visits or report delivery</p>
+                  <p className="text-green-800 font-bold">Serving Jhansi City & Nearby Areas</p>
+                  <p className="text-green-600 text-sm">FREE home sample collection and report delivery in Jhansi</p>
                 </div>
               </div>
               <p className="text-lg text-slate-600 mb-8 max-w-lg leading-relaxed">
-                Book pathology tests from the comfort of your home. We offer professional home collection and state-of-the-art lab facilities.
+                Book blood tests and health checkups at <strong>jhansilabs.in.net</strong>. We offer professional home collection and state-of-the-art diagnostic facilities exclusively in Jhansi.
               </p>
               <div className="flex flex-wrap gap-4">
                 <button 
@@ -1955,10 +1977,21 @@ export default function App() {
                       setPatientDetails(prev => ({ ...prev, location: loc.name }));
                       setCurrentPage('tests');
                     }}
-                    className="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold text-sm hover:bg-slate-200 transition-all"
+                    className="flex-1 bg-blue-50 text-blue-600 py-3 rounded-xl font-bold text-sm hover:bg-blue-100 transition-all"
                   >
                     Book Here
                   </button>
+                  {loc.mapUrl && (
+                    <a 
+                      href={loc.mapUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 bg-slate-100 text-slate-700 py-3 rounded-xl font-bold text-sm hover:bg-slate-200 transition-all flex items-center justify-center"
+                      title="View on Google Maps"
+                    >
+                      <MapPin size={16} />
+                    </a>
+                  )}
                 </div>
               </motion.div>
             ))}
@@ -2976,11 +3009,15 @@ export default function App() {
   </AnimatePresence>
 
       {/* Footer */}
+      </main>
+
       <footer className="bg-slate-900 text-white py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-12 mb-16">
-            <div className="col-span-2">
+            <div>
               <div 
+                role="button"
+                aria-label="Jhansi Labs Home"
                 className="flex items-center gap-2 mb-6 cursor-pointer group"
                 onClick={() => { setCurrentPage('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
               >
@@ -2990,45 +3027,86 @@ export default function App() {
                 <span className="text-2xl font-bold tracking-tight">Jhansi <span className="text-blue-600">Labs</span></span>
               </div>
               <p className="text-slate-400 max-w-sm mb-8 leading-relaxed">
-                Your trusted partner in health diagnostics. Providing accurate, timely, and affordable laboratory services.
+                Jhansi Labs is your trusted partner for accurate, timely, and affordable pathology diagnostics in Jhansi, Uttar Pradesh.
               </p>
               <div className="flex gap-4">
-                <button className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center hover:bg-blue-600 transition-all">
+                <a 
+                  href="https://facebook.com/jhansilabs" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  aria-label="Visit our Facebook" 
+                  className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center hover:bg-blue-600 transition-all"
+                >
                   <ExternalLink size={18} />
-                </button>
-                <button className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center hover:bg-blue-600 transition-all">
+                </a>
+                <a 
+                  href="https://instagram.com/jhansilabs" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  aria-label="Visit our Instagram" 
+                  className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center hover:bg-blue-600 transition-all"
+                >
+                  <Instagram size={18} />
+                </a>
+                <a 
+                  href="mailto:jhansilabs@gmail.com" 
+                  aria-label="Email Us" 
+                  className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center hover:bg-blue-600 transition-all"
+                >
                   <Mail size={18} />
-                </button>
-                <button className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center hover:bg-blue-600 transition-all">
+                </a>
+                <a 
+                  href={`tel:${LAB_LOCATIONS[0].phone}`} 
+                  aria-label="Call Us" 
+                  className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center hover:bg-blue-600 transition-all"
+                >
                   <Phone size={18} />
-                </button>
+                </a>
               </div>
             </div>
             <div>
-              <h4 className="font-bold text-lg mb-6">Quick Links</h4>
+              <h4 className="font-bold text-lg mb-6 text-blue-500">Quick Links</h4>
               <ul className="space-y-4 text-slate-400">
-                <li><button onClick={() => setCurrentPage('home')} className="hover:text-blue-600 transition-colors">Home</button></li>
-                <li><button onClick={() => setCurrentPage('packages')} className="hover:text-blue-600 transition-colors">Packages</button></li>
-                <li><button onClick={() => { setCurrentPage('terms'); window.scrollTo(0,0); }} className="hover:text-blue-600 transition-colors">Terms & Conditions</button></li>
-                <li><button onClick={() => { setCurrentPage('terms'); window.scrollTo(0,0); }} className="hover:text-blue-600 transition-colors">Privacy Policy</button></li>
+                <li><button aria-label="Go to Home" onClick={() => setCurrentPage('home')} className="hover:text-blue-600 transition-colors">Home</button></li>
+                <li><button aria-label="Explore Health Packages" onClick={() => setCurrentPage('packages')} className="hover:text-blue-600 transition-colors">Health Packages</button></li>
+                <li><button aria-label="Search and Book Tests" onClick={() => setCurrentPage('tests')} className="hover:text-blue-600 transition-colors text-blue-600 font-bold">Book Blood Test</button></li>
+                <li><button aria-label="Terms and Conditions" onClick={() => { setCurrentPage('terms'); window.scrollTo(0,0); }} className="hover:text-blue-600 transition-colors">Terms & Conditions</button></li>
+                <li><button aria-label="Privacy Policy" onClick={() => { setCurrentPage('terms'); window.scrollTo(0,0); }} className="hover:text-blue-600 transition-colors">Privacy Policy</button></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-bold text-lg mb-6">Contact Us</h4>
+              <h4 className="font-bold text-lg mb-6 text-blue-500">Top Tests in Jhansi</h4>
+              <ul className="space-y-3 text-slate-400 text-sm">
+                <li><button onClick={() => { setSearchQuery('CBC'); setCurrentPage('tests'); }} className="hover:text-white transition-colors">CBC Test in Jhansi</button></li>
+                <li><button onClick={() => { setSearchQuery('Diabetes'); setCurrentPage('tests'); }} className="hover:text-white transition-colors">Diabetes Screening Jhansi</button></li>
+                <li><button onClick={() => { setSearchQuery('Thyroid'); setCurrentPage('tests'); }} className="hover:text-white transition-colors">Thyroid Profile (T3 T4 TSH)</button></li>
+                <li><button onClick={() => { setSearchQuery('Vit D'); setCurrentPage('tests'); }} className="hover:text-white transition-colors">Vitamin D Blood Test</button></li>
+                <li><button onClick={() => { setSearchQuery('Liver'); setCurrentPage('tests'); }} className="hover:text-white transition-colors">Liver Function Test (LFT)</button></li>
+                <li><button onClick={() => { setSearchQuery('Lipid'); setCurrentPage('tests'); }} className="hover:text-white transition-colors">Lipid Profile Test</button></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-bold text-lg mb-6 text-blue-500">Contact Us</h4>
               <ul className="space-y-4 text-slate-400">
                 <li className="flex items-start gap-3">
                   <MapPin size={18} className="text-blue-600 shrink-0 mt-1" />
-                  <span>{LAB_LOCATIONS[0].address}</span>
+                  <div className="flex flex-col">
+                    <span className="text-sm leading-relaxed">{LAB_LOCATIONS[0].address}</span>
+                    <a 
+                      href={LAB_LOCATIONS[0].mapUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-xs text-blue-500 hover:underline mt-1 font-medium"
+                    >
+                      View on Google Maps
+                    </a>
+                  </div>
                 </li>
                 <li className="flex items-center gap-3">
                   <Phone size={18} className="text-blue-600 shrink-0" />
-                  <a href={`tel:${LAB_LOCATIONS[0].phone}`} className="hover:text-blue-600 transition-colors font-bold text-white">
-                    {LAB_LOCATIONS[0].phone} (Call Now)
+                  <a href={`tel:${LAB_LOCATIONS[0].phone}`} aria-label="Call Jhansi Labs" className="hover:text-blue-600 transition-colors font-bold text-white">
+                    {LAB_LOCATIONS[0].phone}
                   </a>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Mail size={18} className="text-blue-600 shrink-0" />
-                  <span>info@jhansilabs.com</span>
                 </li>
               </ul>
             </div>
@@ -3038,6 +3116,6 @@ export default function App() {
           </div>
         </div>
       </footer>
-        </div>
-    );
+    </div>
+  );
 }

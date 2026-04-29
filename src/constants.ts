@@ -10,6 +10,7 @@ export const LAB_LOCATIONS: LabLocation[] = [
     phone: '+91 9838319144',
     isMain: true,
     image: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800',
+    mapUrl: 'https://www.google.com/maps/search/?api=1&query=Jhansi+Labs+Jhansi',
   },
 ];
 
