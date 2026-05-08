@@ -1334,8 +1334,8 @@ export default function App() {
             >
               <div className="p-10">
                 <div className="text-center mb-8">
-                  <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-200 mx-auto mb-4">
-                    <Microscope size={32} />
+                  <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-100 mx-auto mb-4 overflow-hidden">
+                    <img src="/logo_icon.svg" alt="Jhansi Labs" className="w-full h-full object-cover" />
                   </div>
                   <h2 className="text-3xl font-bold text-slate-900">
                     {authMode === 'login' ? 'Welcome Back' : authMode === 'signup' ? 'Create Account' : 'Reset Password'}
@@ -1480,8 +1480,8 @@ export default function App() {
               className="flex items-center gap-2 cursor-pointer group"
               onClick={() => { setCurrentPage('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
             >
-              <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200 group-hover:scale-105 transition-transform">
-                <Microscope size={24} />
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg shadow-blue-200 group-hover:scale-105 transition-transform overflow-hidden">
+                <img src="/logo_icon.svg" alt="Jhansi Labs" className="w-full h-full object-cover" />
               </div>
               <span className="text-xl font-bold tracking-tight text-slate-900">Jhansi <span className="text-blue-600">Labs</span></span>
             </div>
@@ -3021,8 +3021,8 @@ export default function App() {
                 className="flex items-center gap-2 mb-6 cursor-pointer group"
                 onClick={() => { setCurrentPage('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
               >
-                <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white group-hover:scale-105 transition-transform">
-                  <Microscope size={24} />
+                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg shadow-blue-200 group-hover:scale-105 transition-transform overflow-hidden">
+                  <img src="/logo_icon.svg" alt="Jhansi Labs" className="w-full h-full object-cover" />
                 </div>
                 <span className="text-2xl font-bold tracking-tight">Jhansi <span className="text-blue-600">Labs</span></span>
               </div>

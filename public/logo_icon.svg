@@ -1,0 +1,13 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- J - Test Tube -->
+  <path d="M45 25V65C45 73 38 80 30 80C22 80 15 73 15 65" stroke="#1E293B" stroke-width="8" stroke-linecap="round"/>
+  <path d="M45 45V65C45 70 42 73 38 73C34 73 31 70 31 65V45H45Z" fill="#3B82F6" opacity="0.8"/>
+  <circle cx="36" cy="55" r="2" fill="white"/>
+  <circle cx="40" cy="62" r="1.5" fill="white"/>
+  <circle cx="38" cy="25" r="4" fill="#1E293B"/> <!-- Dot of J -->
+  
+  <!-- L - Microscope silhouette -->
+  <path d="M55 25V75H75" stroke="#64748B" stroke-width="8" stroke-linecap="round"/>
+  <path d="M60 40C60 40 65 35 70 40L75 50" stroke="#64748B" stroke-width="3"/>
+  <path d="M65 55L75 65" stroke="#64748B" stroke-width="4"/>
+</svg>
